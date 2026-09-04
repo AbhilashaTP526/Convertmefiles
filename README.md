@@ -67,9 +67,9 @@ Copy `.env.example` to `.env.local`. Only `NEXT_PUBLIC_SITE_URL` matters for the
 
 ## Admin panel (`/admin`)
 
-A password-protected dashboard for **analytics** (page views, conversion funnel, all tracked as aggregate counts — no PII) and **AdSense** (paste your publisher ID and ad slot IDs; ads appear immediately, no redeploy). It needs two things, both one-time setup:
+A password-protected dashboard for **analytics** (page views, conversion funnel, all tracked as aggregate counts — no PII) and **AdSense** (paste your publisher ID and ad slot IDs; ads appear immediately, no redeploy). A discreet "Admin" link lives in the site footer. It needs two things, both one-time setup:
 
-1. **A password.** Set `ADMIN_PASSWORD` and `ADMIN_SESSION_SECRET` (a random 32+ character string — `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` generates one) as environment variables.
+1. **Login credentials.** Set `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_SESSION_SECRET` (a random 32+ character string — `node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"` generates one) as environment variables.
 2. **Storage.** In your Vercel project: **Storage → Create Database → Upstash Redis** (the free tier is generous), then connect it to the project. Vercel injects `KV_REST_API_URL` / `KV_REST_API_TOKEN` automatically — you don't need to copy them by hand. Redeploy once after connecting it.
 
 Without step 2, the site still works completely normally — the admin panel just shows a banner explaining that analytics/settings aren't connected yet, and ads stay off. Nothing about the core converters depends on this.

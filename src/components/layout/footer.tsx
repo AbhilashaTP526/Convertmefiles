@@ -15,8 +15,13 @@ export function Footer() {
           <FooterColumn title="Company" links={siteConfig.footerLinks.company} />
           <FooterColumn title="Legal" links={siteConfig.footerLinks.legal} />
         </div>
-        <p className="mt-10 text-xs text-zinc-500">
-          © {new Date().getFullYear()} {siteConfig.shortName}. All conversions run locally in your browser.
+        <p className="mt-10 flex flex-wrap items-center gap-x-2 text-xs text-zinc-500">
+          <span>
+            © {new Date().getFullYear()} {siteConfig.shortName}. All conversions run locally in your browser.
+          </span>
+          <Link href="/admin" className="text-zinc-400 hover:text-zinc-600">
+            Admin
+          </Link>
         </p>
       </Container>
     </footer>

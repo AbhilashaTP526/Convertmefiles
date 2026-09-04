@@ -33,10 +33,7 @@ export async function verifyAdminSessionToken(token: string | undefined): Promis
 }
 
 /** Timing-safe comparison so response time can't leak how many characters matched. */
-export function checkAdminPassword(candidate: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
-  if (!expected) return false;
-
+function timingSafeStringEqual(candidate: string, expected: string): boolean {
   const a = new TextEncoder().encode(candidate.padEnd(expected.length, "\0"));
   const b = new TextEncoder().encode(expected.padEnd(candidate.length, "\0"));
   if (a.length !== b.length) return false;
@@ -46,8 +43,20 @@ export function checkAdminPassword(candidate: string): boolean {
   return diff === 0 && candidate.length === expected.length;
 }
 
+export function checkAdminPassword(candidate: string): boolean {
+  const expected = process.env.ADMIN_PASSWORD;
+  if (!expected) return false;
+  return timingSafeStringEqual(candidate, expected);
+}
+
+export function checkAdminEmail(candidate: string): boolean {
+  const expected = process.env.ADMIN_EMAIL;
+  if (!expected) return false;
+  return timingSafeStringEqual(candidate.trim().toLowerCase(), expected.trim().toLowerCase());
+}
+
 export function isAdminAuthConfigured(): boolean {
-  return Boolean(process.env.ADMIN_PASSWORD && process.env.ADMIN_SESSION_SECRET);
+  return Boolean(process.env.ADMIN_EMAIL && process.env.ADMIN_PASSWORD && process.env.ADMIN_SESSION_SECRET);
 }
 
 /**

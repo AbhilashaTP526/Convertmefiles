@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { FiBarChart2, FiDollarSign, FiExternalLink, FiLogOut, FiShield } from "react-icons/fi";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils/cn";
@@ -13,12 +13,13 @@ const navItems = [
 
 export function AdminNav() {
   const pathname = usePathname();
-  const router = useRouter();
 
   async function handleLogout() {
     await fetch("/api/admin/logout", { method: "POST" });
-    router.replace("/admin/login");
-    router.refresh();
+    // Hard navigation, not router.replace(): guarantees no stale
+    // authenticated page lingers in the client Router Cache post-logout.
+    // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+    window.location.assign("/admin/login");
   }
 
   return (

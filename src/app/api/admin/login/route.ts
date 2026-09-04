@@ -1,17 +1,24 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { z } from "zod";
-import { ADMIN_SESSION_COOKIE, checkAdminPassword, createAdminSessionToken, isAdminAuthConfigured } from "@/lib/admin/auth";
+import {
+  ADMIN_SESSION_COOKIE,
+  checkAdminEmail,
+  checkAdminPassword,
+  createAdminSessionToken,
+  isAdminAuthConfigured,
+} from "@/lib/admin/auth";
 import { isRateLimited, getClientIp } from "@/lib/admin/rate-limit";
 
 const bodySchema = z.object({
+  email: z.string().email().max(200),
   password: z.string().min(1).max(200),
 });
 
 export async function POST(request: Request) {
   if (!isAdminAuthConfigured()) {
     return NextResponse.json(
-      { error: "Admin login isn't configured yet. Set ADMIN_PASSWORD and ADMIN_SESSION_SECRET." },
+      { error: "Admin login isn't configured yet. Set ADMIN_EMAIL, ADMIN_PASSWORD, and ADMIN_SESSION_SECRET." },
       { status: 503 }
     );
   }
@@ -24,11 +31,13 @@ export async function POST(request: Request) {
   const json = await request.json().catch(() => null);
   const parsed = bodySchema.safeParse(json);
   if (!parsed.success) {
-    return NextResponse.json({ error: "Invalid request." }, { status: 400 });
+    return NextResponse.json({ error: "Enter a valid email and password." }, { status: 400 });
   }
 
-  if (!checkAdminPassword(parsed.data.password)) {
-    return NextResponse.json({ error: "Incorrect password." }, { status: 401 });
+  const emailOk = checkAdminEmail(parsed.data.email);
+  const passwordOk = checkAdminPassword(parsed.data.password);
+  if (!emailOk || !passwordOk) {
+    return NextResponse.json({ error: "Incorrect email or password." }, { status: 401 });
   }
 
   const token = await createAdminSessionToken();
