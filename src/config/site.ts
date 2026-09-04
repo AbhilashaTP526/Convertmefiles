@@ -3,8 +3,8 @@ export const siteConfig = {
   shortName: "ConvertMeFiles",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://convertmefiles.com",
   description:
-    "Convert images, PDFs, audio, and video directly in your browser. No uploads, no waiting, no account required — your files never leave your device.",
-  tagline: "Convert files privately, right in your browser.",
+    "Convert images, PDFs, and audio in seconds — no uploads, no sign-up, no limits. Your files stay private and secure, and it's always free to use.",
+  tagline: "Fast, free, and completely private file conversion.",
   keywords: [
     "file converter",
     "image converter",

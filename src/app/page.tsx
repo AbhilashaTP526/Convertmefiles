@@ -59,7 +59,7 @@ export default function HomePage() {
       <section className="border-b border-zinc-100 bg-gradient-to-b from-indigo-50/60 to-white py-16 sm:py-24">
         <Container className="text-center">
           <h1 className="mx-auto max-w-3xl text-4xl font-bold tracking-tight text-zinc-900 sm:text-5xl">
-            Convert files privately — right in your browser
+            Convert files privately — fast, free, and secure
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-zinc-600">{siteConfig.description}</p>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
