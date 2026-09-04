@@ -9,9 +9,9 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur">
       <Container>
         <div className="relative flex h-16 items-center justify-between gap-4">
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex shrink-0 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Letterlogo.svg" alt={siteConfig.shortName} className="h-8 w-auto" />
+            <img src="/Letterlogo.svg" alt={siteConfig.shortName} className="h-12 w-auto" />
           </Link>
 
           <div className="hidden max-w-xs flex-1 sm:block">
