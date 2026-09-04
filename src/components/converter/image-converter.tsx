@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiAlertCircle, FiCheckCircle, FiDownload, FiLoader, FiRotateCcw } from "react-icons/fi";
 import type { ConversionDefinition } from "@/config/conversions";
 import { formats, type ImageFormatId } from "@/config/formats";
@@ -8,6 +8,7 @@ import { validateImageFile, sanitizeFileBaseName } from "@/lib/security/validate
 import type { ImageOutputFormat } from "@/lib/conversion/image";
 import { useImageConverter } from "@/hooks/use-image-converter";
 import { formatBytes } from "@/lib/utils/format-bytes";
+import { trackEvent } from "@/lib/analytics/track";
 import { FileDropzone } from "@/components/converter/file-dropzone";
 import { Button } from "@/components/ui/button";
 
@@ -48,8 +49,15 @@ export function ImageConverter({ conversion }: { conversion: ConversionDefinitio
     setSelectedFile(file);
   }
 
+  useEffect(() => {
+    if (status === "done") trackEvent({ event: "conversion_completed", slug: conversion.slug });
+    if (status === "error") trackEvent({ event: "conversion_failed", slug: conversion.slug });
+  }, [status, conversion.slug]);
+
   function handleConvert() {
-    if (selectedFile) convert(selectedFile, isLossyOutput ? quality : undefined);
+    if (!selectedFile) return;
+    trackEvent({ event: "conversion_started", slug: conversion.slug });
+    convert(selectedFile, isLossyOutput ? quality : undefined);
   }
 
   function handleReset() {

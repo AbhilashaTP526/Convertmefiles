@@ -7,6 +7,7 @@ import { formats } from "@/config/formats";
 import { validateVideoFile, sanitizeFileBaseName } from "@/lib/security/validate-file";
 import { loadFFmpegEngine, extractAudioFromVideo, type AudioOutputFormat } from "@/lib/conversion/audio";
 import { formatBytes } from "@/lib/utils/format-bytes";
+import { trackEvent } from "@/lib/analytics/track";
 import { FileDropzone } from "@/components/converter/file-dropzone";
 import { Button } from "@/components/ui/button";
 
@@ -55,6 +56,7 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
     if (!selectedFile) return;
     setError(null);
     setProgress(0);
+    trackEvent({ event: "conversion_started", slug: conversion.slug });
 
     try {
       setStatus("loading-engine");
@@ -68,9 +70,11 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
 
       setResultUrl(URL.createObjectURL(blob));
       setStatus("done");
+      trackEvent({ event: "conversion_completed", slug: conversion.slug });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Conversion failed unexpectedly.");
       setStatus("error");
+      trackEvent({ event: "conversion_failed", slug: conversion.slug });
     }
   }
 

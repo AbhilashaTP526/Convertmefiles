@@ -21,6 +21,7 @@ import { ImageConverter } from "@/components/converter/image-converter";
 import { PdfFromImagesConverter } from "@/components/converter/pdf-from-images-converter";
 import { AudioConverter } from "@/components/converter/audio-converter";
 import { articleFor } from "@/lib/utils/grammar";
+import { AdPlacement } from "@/components/ads/ad-placement";
 import { FiCheckCircle, FiInfo } from "react-icons/fi";
 
 export const dynamicParams = false;
@@ -111,6 +112,7 @@ export default async function ConversionPage({
             <span>{limitationNote}</span>
           </p>
         )}
+        <AdPlacement slotKey="belowConverter" />
       </Container>
 
       <Container className="max-w-3xl space-y-12 py-12">
@@ -192,6 +194,8 @@ export default async function ConversionPage({
         </section>
 
         <FaqSection faqs={conversion.faqs} />
+
+        <AdPlacement slotKey="belowContent" />
 
         <RelatedLinks
           title="Related converters"

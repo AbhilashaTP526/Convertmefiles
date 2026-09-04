@@ -7,6 +7,7 @@ import { formats } from "@/config/formats";
 import { validateImageFile } from "@/lib/security/validate-file";
 import { convertImagesToPdf } from "@/lib/conversion/pdf";
 import { formatBytes } from "@/lib/utils/format-bytes";
+import { trackEvent } from "@/lib/analytics/track";
 import { FileDropzone } from "@/components/converter/file-dropzone";
 import { Button } from "@/components/ui/button";
 
@@ -65,13 +66,16 @@ export function PdfFromImagesConverter({ conversion }: { conversion: ConversionD
     if (files.length === 0) return;
     resetResult();
     setStatus("converting");
+    trackEvent({ event: "conversion_started", slug: conversion.slug });
     try {
       const blob = await convertImagesToPdf(files, sourceFormat);
       setResultUrl(URL.createObjectURL(blob));
       setStatus("done");
+      trackEvent({ event: "conversion_completed", slug: conversion.slug });
     } catch (err) {
       setError(err instanceof Error ? err.message : "PDF creation failed unexpectedly.");
       setStatus("error");
+      trackEvent({ event: "conversion_failed", slug: conversion.slug });
     }
   }
 

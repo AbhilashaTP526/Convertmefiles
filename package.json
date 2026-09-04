@@ -12,11 +12,14 @@
   "dependencies": {
     "@ffmpeg/ffmpeg": "^0.12.15",
     "@ffmpeg/util": "^0.12.2",
+    "@upstash/redis": "^1.38.3",
+    "jose": "^6.2.11",
     "next": "16.3.4",
     "pdf-lib": "^1.17.1",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-icons": "^5.7.0"
+    "react-icons": "^5.7.0",
+    "zod": "^4.5.4"
   },
   "devDependencies": {
     "@ffmpeg/core": "^0.12.10",

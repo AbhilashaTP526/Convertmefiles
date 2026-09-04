@@ -8,6 +8,7 @@ import { FaqSection } from "@/components/seo/faq-section";
 import { RelatedLinks } from "@/components/seo/related-links";
 import { JsonLd } from "@/components/seo/json-ld";
 import { PdfMergeTool } from "@/components/converter/pdf-merge-tool";
+import { AdPlacement } from "@/components/ads/ad-placement";
 
 export const metadata: Metadata = {
   title: "Merge PDF Files",
@@ -63,6 +64,7 @@ export default function MergePdfPage() {
 
       <Container className="max-w-3xl py-6">
         <PdfMergeTool />
+        <AdPlacement slotKey="belowConverter" />
       </Container>
 
       <Container className="max-w-3xl space-y-12 py-12">
@@ -92,6 +94,8 @@ export default function MergePdfPage() {
         </section>
 
         <FaqSection faqs={faqs} />
+
+        <AdPlacement slotKey="belowContent" />
 
         <RelatedLinks
           title="Related tools"
