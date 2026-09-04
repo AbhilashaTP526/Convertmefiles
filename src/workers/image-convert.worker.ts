@@ -5,6 +5,7 @@ export interface ImageConvertRequest {
   outputFormat: ImageOutputFormat;
   quality?: number;
   backgroundColor?: string;
+  scale?: number;
 }
 
 export type ImageConvertResponse =
@@ -12,10 +13,10 @@ export type ImageConvertResponse =
   | { success: false; error: string };
 
 self.onmessage = async (event: MessageEvent<ImageConvertRequest>) => {
-  const { file, outputFormat, quality, backgroundColor } = event.data;
+  const { file, outputFormat, quality, backgroundColor, scale } = event.data;
 
   try {
-    const result = await convertImageFile(file, outputFormat, { quality, backgroundColor });
+    const result = await convertImageFile(file, outputFormat, { quality, backgroundColor, scale });
     const response: ImageConvertResponse = {
       success: true,
       blob: result.blob,

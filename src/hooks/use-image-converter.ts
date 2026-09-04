@@ -12,7 +12,7 @@ export interface UseImageConverterResult {
   resultBlob: Blob | null;
   resultUrl: string | null;
   dimensions: { width: number; height: number } | null;
-  convert: (file: File, quality?: number) => void;
+  convert: (file: File, quality?: number, scale?: number) => void;
   cancel: () => void;
   reset: () => void;
 }
@@ -56,7 +56,7 @@ export function useImageConverter(outputFormat: ImageOutputFormat): UseImageConv
   }, [reset]);
 
   const convert = useCallback(
-    (file: File, quality?: number) => {
+    (file: File, quality?: number, scale?: number) => {
       workerRef.current?.terminate();
       reset();
       setStatus("converting");
@@ -89,7 +89,7 @@ export function useImageConverter(outputFormat: ImageOutputFormat): UseImageConv
         if (workerRef.current === worker) workerRef.current = null;
       };
 
-      const request: ImageConvertRequest = { file, outputFormat, quality };
+      const request: ImageConvertRequest = { file, outputFormat, quality, scale };
       worker.postMessage(request);
     },
     [outputFormat, reset]

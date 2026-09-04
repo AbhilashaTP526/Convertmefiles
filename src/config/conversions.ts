@@ -2,7 +2,7 @@ import { formats, type FormatId } from "./formats";
 import { articleFor } from "@/lib/utils/grammar";
 
 export type ProcessingMode = "client" | "server" | "hybrid";
-export type ConversionEngine = "image" | "pdf" | "audio" | "video";
+export type ConversionEngine = "image" | "pdf" | "audio" | "video" | "compress";
 
 export interface FaqItem {
   question: string;
@@ -20,7 +20,7 @@ export interface ConversionDefinition {
 }
 
 function slugFor(source: string, target: string) {
-  return `${source}-to-${target}`;
+  return source === target ? `compress-${source}` : `${source}-to-${target}`;
 }
 
 const engineDescription: Record<ConversionEngine, string> = {
@@ -28,7 +28,42 @@ const engineDescription: Record<ConversionEngine, string> = {
   pdf: "the pdf-lib library",
   audio: "a WebAssembly build of FFmpeg",
   video: "a WebAssembly build of FFmpeg",
+  compress: "the Canvas API",
 };
+
+function buildCompressFaqs(format: string): FaqItem[] {
+  const upper = format.toUpperCase();
+
+  return [
+    {
+      question: `How do I compress a ${upper} file?`,
+      answer: `Choose ${articleFor(upper)} ${upper} file using the drop zone or "Choose File" button above, adjust the compression level if you like, then click "Compress". Everything runs in your browser using the Canvas API, and you'll get a "Download" button for the smaller ${upper} file — no upload, no waiting on a server.`,
+    },
+    {
+      question: `Is this ${upper} compressor free?`,
+      answer: `Yes. It's completely free with no sign-up, no watermark, and no limit on how many files you compress.`,
+    },
+    {
+      question: `Are my files uploaded to a server?`,
+      answer: `No. Compression happens entirely inside your browser using the Canvas API. Your file is never uploaded, stored, or transmitted anywhere.`,
+    },
+    {
+      question: `How much smaller will my file get?`,
+      answer:
+        format === "png"
+          ? `PNG is a lossless format, so the Canvas API can't reduce its quality the way it can for JPG or WebP. At higher compression levels, this tool instead reduces the image's dimensions, which is the main lever available for shrinking a PNG in-browser.`
+          : `It depends on the image and the compression level you choose — typically 30-70% smaller with only a small, often unnoticeable drop in visual quality.`,
+    },
+    {
+      question: `Can I use this on my phone?`,
+      answer: `Yes. It works on any modern mobile browser on Android or iPhone, as well as desktop browsers like Chrome, Firefox, Safari, and Edge.`,
+    },
+    {
+      question: `What is the maximum file size I can compress?`,
+      answer: `Because compression happens on your own device, the limit depends on your browser and device memory. We recommend keeping individual files under 40MB for the smoothest experience.`,
+    },
+  ];
+}
 
 function buildFaqs(source: string, target: string, engine: ConversionEngine): FaqItem[] {
   const sourceUpper = source.toUpperCase();
@@ -113,6 +148,9 @@ const pairs: PairSpec[] = [
   { source: "mp4", target: "webm", engine: "video" },
   { source: "webm", target: "mp4", engine: "video" },
   { source: "mp4", target: "gif", engine: "video" },
+  { source: "jpg", target: "jpg", engine: "compress" },
+  { source: "png", target: "png", engine: "compress" },
+  { source: "webp", target: "webp", engine: "compress" },
 ];
 
 export const conversions: ConversionDefinition[] = pairs.map(({ source, target, engine }) => ({
@@ -122,7 +160,7 @@ export const conversions: ConversionDefinition[] = pairs.map(({ source, target, 
   processing: "client",
   engine,
   outputMime: formats[target].mimeTypes[0],
-  faqs: buildFaqs(source, target, engine),
+  faqs: source === target ? buildCompressFaqs(source) : buildFaqs(source, target, engine),
 }));
 
 export const conversionBySlug: Record<string, ConversionDefinition> = Object.fromEntries(

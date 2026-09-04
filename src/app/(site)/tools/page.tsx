@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tools" },
 };
 
-const imageCount = conversions.filter((c) => c.engine === "image").length;
+const imageCount = conversions.filter((c) => c.engine === "image" || c.engine === "compress").length;
 const pdfCount = conversions.filter((c) => c.engine === "pdf").length + 1; // + Merge PDF
 const audioCount = conversions.filter((c) => c.engine === "audio").length;
 const videoCount = conversions.filter((c) => c.engine === "video").length;

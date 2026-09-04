@@ -21,6 +21,7 @@ import { ImageConverter } from "@/components/converter/image-converter";
 import { PdfFromImagesConverter } from "@/components/converter/pdf-from-images-converter";
 import { AudioConverter } from "@/components/converter/audio-converter";
 import { VideoConverter } from "@/components/converter/video-converter";
+import { CompressImageConverter } from "@/components/converter/compress-image-converter";
 import { articleFor } from "@/lib/utils/grammar";
 import { AdPlacement } from "@/components/ads/ad-placement";
 import { FiCheckCircle, FiInfo } from "react-icons/fi";
@@ -73,6 +74,7 @@ export default async function ConversionPage({
   const comparisonRows = getComparisonRows(conversion);
   const limitationNote = getLimitationNote(conversion);
   const related = getRelatedConversions(conversion);
+  const isCompress = conversion.engine === "compress";
 
   const breadcrumbItems = [
     { name: "Home", path: "/" },
@@ -106,6 +108,8 @@ export default async function ConversionPage({
           <AudioConverter conversion={conversion} />
         ) : conversion.engine === "video" ? (
           <VideoConverter conversion={conversion} />
+        ) : isCompress ? (
+          <CompressImageConverter conversion={conversion} />
         ) : (
           <ImageConverter conversion={conversion} />
         )}
@@ -121,21 +125,28 @@ export default async function ConversionPage({
       <Container className="max-w-3xl space-y-12 py-12">
         <section>
           <h2 className="text-xl font-bold text-zinc-900">
-            What is {source.name} to {target.name} conversion?
+            {isCompress ? `What is ${source.name} compression?` : `What is ${source.name} to ${target.name} conversion?`}
           </h2>
           <p className="mt-3 leading-relaxed text-zinc-600">{getWhatIsParagraph(conversion)}</p>
         </section>
 
         <section>
           <h2 className="text-xl font-bold text-zinc-900">
-            How to convert {source.name} to {target.name}
+            {isCompress ? `How to compress a ${source.name} file` : `How to convert ${source.name} to ${target.name}`}
           </h2>
           <ol className="mt-3 space-y-2">
-            {[
-              `Choose ${articleFor(source.name)} ${source.name} file using the drop zone above (or drag and drop it in).`,
-              `Wait a moment while your browser converts the file locally.`,
-              `Click "Download" to save your new ${target.name} file.`,
-            ].map((step, i) => (
+            {(isCompress
+              ? [
+                  `Choose ${articleFor(source.name)} ${source.name} file using the drop zone above (or drag and drop it in).`,
+                  `Adjust the compression level if you like, then click "Compress".`,
+                  `Click "Download" to save your smaller ${source.name} file.`,
+                ]
+              : [
+                  `Choose ${articleFor(source.name)} ${source.name} file using the drop zone above (or drag and drop it in).`,
+                  `Wait a moment while your browser converts the file locally.`,
+                  `Click "Download" to save your new ${target.name} file.`,
+                ]
+            ).map((step, i) => (
               <li key={i} className="flex items-start gap-2 text-zinc-600">
                 <FiCheckCircle aria-hidden className="mt-0.5 shrink-0 text-emerald-600" />
                 <span>{step}</span>
@@ -146,7 +157,7 @@ export default async function ConversionPage({
 
         <section>
           <h2 className="text-xl font-bold text-zinc-900">
-            Why convert {source.name} to {target.name}?
+            {isCompress ? `Why compress a ${source.name} file?` : `Why convert ${source.name} to ${target.name}?`}
           </h2>
           <p className="mt-3 leading-relaxed text-zinc-600">{getWhyConvertParagraph(conversion)}</p>
         </section>
@@ -180,11 +191,11 @@ export default async function ConversionPage({
         )}
 
         <section>
-          <h2 className="text-xl font-bold text-zinc-900">Is this conversion private?</h2>
+          <h2 className="text-xl font-bold text-zinc-900">{isCompress ? "Is this private?" : "Is this conversion private?"}</h2>
           <p className="mt-3 leading-relaxed text-zinc-600">
-            Yes. This {source.name} to {target.name} converter runs entirely in your browser using{" "}
-            {getEngineDescription(conversion)} — your file is never uploaded to our servers, stored, or logged.
-            Closing this tab discards everything.
+            Yes. This {isCompress ? `${source.name} compressor` : `${source.name} to ${target.name} converter`} runs
+            entirely in your browser using {getEngineDescription(conversion)} — your file is never uploaded to our
+            servers, stored, or logged. Closing this tab discards everything.
           </p>
         </section>
 
@@ -207,10 +218,14 @@ export default async function ConversionPage({
 
         <RelatedLinks
           title="Related file formats"
-          links={[
-            { label: `${source.name} format`, href: `/formats/${source.id}`, description: source.fullName },
-            { label: `${target.name} format`, href: `/formats/${target.id}`, description: target.fullName },
-          ]}
+          links={
+            isCompress
+              ? [{ label: `${source.name} format`, href: `/formats/${source.id}`, description: source.fullName }]
+              : [
+                  { label: `${source.name} format`, href: `/formats/${source.id}`, description: source.fullName },
+                  { label: `${target.name} format`, href: `/formats/${target.id}`, description: target.fullName },
+                ]
+          }
         />
 
         <p className="text-sm text-zinc-500">

@@ -6,6 +6,7 @@ const engineDescriptions: Record<ConversionDefinition["engine"], string> = {
   pdf: "the pdf-lib library",
   audio: "a WebAssembly build of FFmpeg",
   video: "a WebAssembly build of FFmpeg",
+  compress: "the Canvas API",
 };
 
 export function getEngineDescription(conversion: ConversionDefinition): string {
@@ -21,6 +22,18 @@ function subjectNoun(conversion: ConversionDefinition): string {
 export function getConversionMeta(conversion: ConversionDefinition) {
   const source = formats[conversion.source];
   const target = formats[conversion.target];
+
+  if (conversion.engine === "compress") {
+    const title = `${source.name} Compressor`;
+    return {
+      title,
+      metaTitle: `${title} — Reduce File Size Online, Right in Your Browser`,
+      metaDescription: `Compress ${source.name} images directly in your browser. No upload required — your files stay on your device and come out smaller in seconds.`,
+      h1: `Compress ${source.name}`,
+      intro: `Shrink ${source.name} file sizes instantly and privately. Everything happens on your own device — nothing is uploaded to a server.`,
+    };
+  }
+
   const title = `${source.name} to ${target.name} Converter`;
   const noun = subjectNoun(conversion);
 
@@ -37,6 +50,11 @@ export function getWhatIsParagraph(conversion: ConversionDefinition): string {
   const source = formats[conversion.source];
   const target = formats[conversion.target];
 
+  if (conversion.engine === "compress") {
+    return conversion.source === "png"
+      ? `${source.name} compression shrinks a PNG's file size by scaling down its dimensions — the main lever available in-browser, since PNG's lossless compression can't be selectively reduced the way JPG or WebP can. ${source.description}`
+      : `${source.name} compression re-encodes your image at a lower quality setting, trading a small, often invisible amount of visual detail for a meaningfully smaller file size, while keeping the same ${source.name} format. ${source.description}`;
+  }
   if (conversion.engine === "pdf" && conversion.target === "pdf") {
     return `${source.name} to PDF conversion embeds one or more ${source.name} images into a single PDF document, one image per page, at their original resolution. ${target.description} It's a quick way to combine photos, scans, or screenshots into one shareable file.`;
   }
@@ -57,6 +75,9 @@ export function getWhyConvertParagraph(conversion: ConversionDefinition): string
   const source = formats[conversion.source];
   const target = formats[conversion.target];
 
+  if (conversion.engine === "compress") {
+    return `A smaller ${source.name} file uploads faster, loads faster on a website, and takes up less storage or email attachment space — often with no visible difference in quality.`;
+  }
   if (conversion.engine === "pdf" && conversion.target === "pdf") {
     return `Converting to PDF is the easiest way to turn a handful of images into one document that opens identically on any device, prints cleanly, and can be shared as a single attachment instead of several separate image files.`;
   }
@@ -113,6 +134,9 @@ export function getComparisonRows(conversion: ConversionDefinition): ComparisonR
 }
 
 export function getLimitationNote(conversion: ConversionDefinition): string | null {
+  if (conversion.engine === "compress" && conversion.source === "png") {
+    return "PNG is lossless, so quality can't be reduced the way JPG or WebP can — increasing the compression level here reduces the image's dimensions instead.";
+  }
   if (conversion.engine === "pdf" && conversion.target === "pdf") {
     return "Each image becomes its own page, scaled to fit the page while keeping its aspect ratio. Select multiple files to create a multi-page PDF.";
   }
