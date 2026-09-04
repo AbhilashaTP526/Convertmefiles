@@ -11,18 +11,27 @@ interface SearchResult {
   label: string;
   sublabel: string;
   href: string;
+  /** Lowercased text matched against the query — broader than the displayed label, so e.g. "jpeg" finds JPG results. */
+  keywords: string;
 }
 
 const searchIndex: SearchResult[] = [
-  ...conversions.map((c) => ({
-    label: getConversionMeta(c).title,
-    sublabel: "Converter",
-    href: `/${c.slug}`,
-  })),
+  ...conversions.map((c) => {
+    const label = getConversionMeta(c).title;
+    const source = formats[c.source];
+    const target = formats[c.target];
+    return {
+      label,
+      sublabel: "Converter",
+      href: `/${c.slug}`,
+      keywords: `${label} ${source.fullName} ${target.fullName} ${source.extensions.join(" ")} ${target.extensions.join(" ")}`.toLowerCase(),
+    };
+  }),
   ...Object.values(formats).map((f) => ({
     label: `${f.name} format`,
     sublabel: "File format guide",
     href: `/formats/${f.id}`,
+    keywords: `${f.name} ${f.fullName} ${f.extensions.join(" ")}`.toLowerCase(),
   })),
 ];
 
@@ -34,7 +43,7 @@ export function SearchBar({ className }: { className?: string }) {
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return searchIndex.filter((item) => item.label.toLowerCase().includes(q)).slice(0, 8);
+    return searchIndex.filter((item) => item.keywords.includes(q)).slice(0, 8);
   }, [query]);
 
   return (
