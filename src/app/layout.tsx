@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
@@ -44,6 +44,12 @@ export const metadata: Metadata = {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
     shortcut: "/favicon.ico",
   },
+};
+
+// Light-only site — this tells the browser not to auto-dark-style native
+// UI (form controls, scrollbars) when the OS/browser is set to dark mode.
+export const viewport: Viewport = {
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
