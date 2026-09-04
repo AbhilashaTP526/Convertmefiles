@@ -9,6 +9,7 @@ import {
   getWhyConvertParagraph,
   getComparisonRows,
   getLimitationNote,
+  getEngineDescription,
 } from "@/lib/seo/conversion-content";
 import { buildWebApplicationJsonLd, buildFaqJsonLd, buildBreadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { Container } from "@/components/ui/container";
@@ -17,6 +18,9 @@ import { FaqSection } from "@/components/seo/faq-section";
 import { RelatedLinks } from "@/components/seo/related-links";
 import { JsonLd } from "@/components/seo/json-ld";
 import { ImageConverter } from "@/components/converter/image-converter";
+import { PdfFromImagesConverter } from "@/components/converter/pdf-from-images-converter";
+import { AudioConverter } from "@/components/converter/audio-converter";
+import { articleFor } from "@/lib/utils/grammar";
 import { FiCheckCircle, FiInfo } from "react-icons/fi";
 
 export const dynamicParams = false;
@@ -94,7 +98,13 @@ export default async function ConversionPage({
       </Container>
 
       <Container className="max-w-3xl py-6">
-        <ImageConverter conversion={conversion} />
+        {conversion.engine === "pdf" ? (
+          <PdfFromImagesConverter conversion={conversion} />
+        ) : conversion.engine === "audio" || conversion.engine === "video" ? (
+          <AudioConverter conversion={conversion} />
+        ) : (
+          <ImageConverter conversion={conversion} />
+        )}
         {limitationNote && (
           <p className="mt-4 flex items-start gap-2 rounded-lg bg-amber-50 p-3 text-sm text-amber-800">
             <FiInfo aria-hidden className="mt-0.5 shrink-0" />
@@ -117,7 +127,7 @@ export default async function ConversionPage({
           </h2>
           <ol className="mt-3 space-y-2">
             {[
-              `Choose a ${source.name} file using the drop zone above (or drag and drop it in).`,
+              `Choose ${articleFor(source.name)} ${source.name} file using the drop zone above (or drag and drop it in).`,
               `Wait a moment while your browser converts the file locally.`,
               `Click "Download" to save your new ${target.name} file.`,
             ].map((step, i) => (
@@ -136,37 +146,40 @@ export default async function ConversionPage({
           <p className="mt-3 leading-relaxed text-zinc-600">{getWhyConvertParagraph(conversion)}</p>
         </section>
 
-        <section>
-          <h2 className="text-xl font-bold text-zinc-900">
-            {source.name} vs {target.name}
-          </h2>
-          <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200">
-            <table className="w-full text-left text-sm">
-              <thead className="bg-zinc-50 text-zinc-500">
-                <tr>
-                  <th className="p-3 font-medium">Property</th>
-                  <th className="p-3 font-medium">{source.name}</th>
-                  <th className="p-3 font-medium">{target.name}</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-zinc-200">
-                {comparisonRows.map((row) => (
-                  <tr key={row.label}>
-                    <td className="p-3 font-medium text-zinc-700">{row.label}</td>
-                    <td className="p-3 text-zinc-600">{row.source}</td>
-                    <td className="p-3 text-zinc-600">{row.target}</td>
+        {comparisonRows.length > 0 && (
+          <section>
+            <h2 className="text-xl font-bold text-zinc-900">
+              {source.name} vs {target.name}
+            </h2>
+            <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-200">
+              <table className="w-full text-left text-sm">
+                <thead className="bg-zinc-50 text-zinc-500">
+                  <tr>
+                    <th className="p-3 font-medium">Property</th>
+                    <th className="p-3 font-medium">{source.name}</th>
+                    <th className="p-3 font-medium">{target.name}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
+                </thead>
+                <tbody className="divide-y divide-zinc-200">
+                  {comparisonRows.map((row) => (
+                    <tr key={row.label}>
+                      <td className="p-3 font-medium text-zinc-700">{row.label}</td>
+                      <td className="p-3 text-zinc-600">{row.source}</td>
+                      <td className="p-3 text-zinc-600">{row.target}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
 
         <section>
           <h2 className="text-xl font-bold text-zinc-900">Is this conversion private?</h2>
           <p className="mt-3 leading-relaxed text-zinc-600">
-            Yes. This {source.name} to {target.name} converter runs entirely in your browser using the Canvas API —
-            your file is never uploaded to our servers, stored, or logged. Closing this tab discards everything.
+            Yes. This {source.name} to {target.name} converter runs entirely in your browser using{" "}
+            {getEngineDescription(conversion)} — your file is never uploaded to our servers, stored, or logged.
+            Closing this tab discards everything.
           </p>
         </section>
 

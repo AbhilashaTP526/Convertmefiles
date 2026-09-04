@@ -4,29 +4,31 @@ import { useCallback, useId, useRef, useState } from "react";
 import { FiUploadCloud } from "react-icons/fi";
 import { cn } from "@/lib/utils/cn";
 
-export function FileDropzone({
-  accept,
-  label,
-  hint,
-  onFile,
-  disabled,
-}: {
+interface FileDropzoneProps {
   accept: string;
   label: string;
   hint: string;
-  onFile: (file: File) => void;
   disabled?: boolean;
-}) {
+  multiple?: boolean;
+  onFile?: (file: File) => void;
+  onFiles?: (files: File[]) => void;
+}
+
+export function FileDropzone({ accept, label, hint, onFile, onFiles, disabled, multiple }: FileDropzoneProps) {
   const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const inputId = useId();
 
   const handleFiles = useCallback(
-    (files: FileList | null) => {
-      const file = files?.[0];
-      if (file) onFile(file);
+    (fileList: FileList | null) => {
+      if (!fileList || fileList.length === 0) return;
+      if (multiple) {
+        onFiles?.(Array.from(fileList));
+      } else {
+        onFile?.(fileList[0]);
+      }
     },
-    [onFile]
+    [multiple, onFile, onFiles]
   );
 
   return (
@@ -52,12 +54,13 @@ export function FileDropzone({
       <p className="mt-1 text-sm text-zinc-500">{hint}</p>
 
       <label htmlFor={inputId} className="mt-4 inline-flex cursor-pointer items-center rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500">
-        Choose File
+        {multiple ? "Choose Files" : "Choose File"}
         <input
           ref={inputRef}
           id={inputId}
           type="file"
           accept={accept}
+          multiple={multiple}
           disabled={disabled}
           className="sr-only"
           onChange={(e) => {

@@ -1,7 +1,10 @@
 export type FormatCategory = "image" | "document" | "audio" | "video";
 
 export type ImageFormatId = "jpg" | "png" | "webp" | "gif" | "bmp";
-export type FormatId = ImageFormatId;
+export type DocumentFormatId = "pdf";
+export type AudioFormatId = "mp3";
+export type VideoFormatId = "mp4";
+export type FormatId = ImageFormatId | DocumentFormatId | AudioFormatId | VideoFormatId;
 
 export interface FormatDefinition {
   id: FormatId;
@@ -170,6 +173,97 @@ export const formats: Record<FormatId, FormatDefinition> = {
     supportsTransparency: false,
     supportsAnimation: false,
     relatedFormats: ["png", "jpg"],
+  },
+  pdf: {
+    id: "pdf",
+    name: "PDF",
+    fullName: "Portable Document Format",
+    category: "document",
+    extensions: [".pdf"],
+    mimeTypes: ["application/pdf"],
+    description:
+      "PDF is a document format that preserves layout, fonts, and images exactly as designed, regardless of the device, operating system, or software used to view it — which is why it's the standard for sharing finished documents.",
+    pros: [
+      "Looks identical on every device and operating system",
+      "Can contain text, images, and vector graphics in one file",
+      "Supports merging, page extraction, and digital signatures",
+    ],
+    cons: [
+      "Not designed for easy editing once created",
+      "Can produce larger files than plain text or image formats",
+      "Complex PDFs (forms, layers) aren't always portable between tools",
+    ],
+    commonUses: [
+      "Sharing finished documents, invoices, and reports",
+      "Printing and archiving",
+      "Combining scanned pages or images into one file",
+    ],
+    howToOpen:
+      "Opens natively in every modern browser, and in dedicated readers like Adobe Acrobat, Preview (macOS), and most operating systems' built-in viewers.",
+    compression: "lossy-or-lossless",
+    supportsTransparency: false,
+    supportsAnimation: false,
+    relatedFormats: ["jpg", "png"],
+  },
+  mp3: {
+    id: "mp3",
+    name: "MP3",
+    fullName: "MPEG-1 Audio Layer III",
+    category: "audio",
+    extensions: [".mp3"],
+    mimeTypes: ["audio/mpeg"],
+    description:
+      "MP3 is a lossy audio format that compresses sound by removing frequencies the human ear barely notices. It remains the most universally compatible audio format for music and voice.",
+    pros: [
+      "Small file sizes at good perceptual quality",
+      "Playable on virtually every device, app, and car stereo",
+      "Widely supported for podcasts, music, and voice recordings",
+    ],
+    cons: [
+      "Lossy compression discards some audio detail",
+      "Not ideal for professional audio mastering",
+    ],
+    commonUses: [
+      "Music and podcasts",
+      "Extracting the audio track from a video",
+      "Voice memos and recordings",
+    ],
+    howToOpen:
+      "Plays natively in every browser, phone, and media player without additional software.",
+    compression: "lossy",
+    supportsTransparency: false,
+    supportsAnimation: false,
+    relatedFormats: ["mp4"],
+  },
+  mp4: {
+    id: "mp4",
+    name: "MP4",
+    fullName: "MPEG-4 Part 14",
+    category: "video",
+    extensions: [".mp4"],
+    mimeTypes: ["video/mp4"],
+    description:
+      "MP4 is the most widely supported video container format, typically pairing H.264 video with AAC audio. It's the default format for video recorded on phones and shared online.",
+    pros: [
+      "Plays natively on virtually every device and browser",
+      "Good compression-to-quality ratio for video",
+      "Can store video, audio, and subtitle tracks together",
+    ],
+    cons: [
+      "Not ideal for further lossless editing without re-encoding",
+      "Extracting just the audio requires re-encoding to an audio format",
+    ],
+    commonUses: [
+      "Phone and camera video recordings",
+      "Video shared on the web and social media",
+      "Source material for extracting audio (e.g. to MP3)",
+    ],
+    howToOpen:
+      "Plays natively in every modern browser and video player, on desktop and mobile.",
+    compression: "lossy",
+    supportsTransparency: false,
+    supportsAnimation: false,
+    relatedFormats: ["mp3"],
   },
 };
 

@@ -11,10 +11,14 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tools" },
 };
 
+const imageCount = conversions.filter((c) => c.engine === "image").length;
+const pdfCount = conversions.filter((c) => c.engine === "pdf").length + 1; // + Merge PDF
+const audioCount = conversions.filter((c) => c.engine === "audio" || c.engine === "video").length;
+
 const categories = [
-  { icon: FiImage, name: "Image", href: "/tools/image", count: conversions.length, live: true },
-  { icon: FiFileText, name: "PDF", href: "#", count: 0, live: false },
-  { icon: FiMusic, name: "Audio", href: "#", count: 0, live: false },
+  { icon: FiImage, name: "Image", href: "/tools/image", count: imageCount, live: true },
+  { icon: FiFileText, name: "PDF", href: "/tools/pdf", count: pdfCount, live: true },
+  { icon: FiMusic, name: "Audio", href: "/tools/audio", count: audioCount, live: true },
   { icon: FiVideo, name: "Video", href: "#", count: 0, live: false },
 ];
 

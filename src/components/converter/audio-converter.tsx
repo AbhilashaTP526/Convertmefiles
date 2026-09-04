@@ -3,43 +3,34 @@
 import { useState } from "react";
 import { FiAlertCircle, FiCheckCircle, FiDownload, FiLoader, FiRotateCcw } from "react-icons/fi";
 import type { ConversionDefinition } from "@/config/conversions";
-import { formats, type ImageFormatId } from "@/config/formats";
-import { validateImageFile, sanitizeFileBaseName } from "@/lib/security/validate-file";
-import type { ImageOutputFormat } from "@/lib/conversion/image";
-import { useImageConverter } from "@/hooks/use-image-converter";
+import { formats } from "@/config/formats";
+import { validateVideoFile, sanitizeFileBaseName } from "@/lib/security/validate-file";
+import { loadFFmpegEngine, extractAudioFromVideo, type AudioOutputFormat } from "@/lib/conversion/audio";
 import { formatBytes } from "@/lib/utils/format-bytes";
 import { FileDropzone } from "@/components/converter/file-dropzone";
 import { Button } from "@/components/ui/button";
 
-const outputFormatMap: Record<string, ImageOutputFormat> = {
-  jpg: "jpeg",
-  png: "png",
-  webp: "webp",
-};
+type Status = "idle" | "loading-engine" | "converting" | "done" | "error";
 
-export function ImageConverter({ conversion }: { conversion: ConversionDefinition }) {
-  // This component only ever renders for image-engine conversions (see [slug]/page.tsx).
-  const sourceFormat = conversion.source as ImageFormatId;
+export function AudioConverter({ conversion }: { conversion: ConversionDefinition }) {
   const source = formats[conversion.source];
   const target = formats[conversion.target];
-  const outputFormat = outputFormatMap[conversion.target];
-  const isLossyOutput = outputFormat === "jpeg" || outputFormat === "webp";
+  const outputFormat = conversion.target as AudioOutputFormat;
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
-  const [quality, setQuality] = useState(0.92);
-
-  const { status, error, resultUrl, dimensions, convert, cancel, reset } = useImageConverter(outputFormat);
+  const [status, setStatus] = useState<Status>("idle");
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
+  const [resultUrl, setResultUrl] = useState<string | null>(null);
 
   const accept = [...source.mimeTypes, ...source.extensions].join(",");
 
   async function handleFile(file: File) {
-    reset();
-    setSelectedFile(null);
     setValidationError(null);
     setIsValidating(true);
-    const result = await validateImageFile(file, sourceFormat);
+    const result = await validateVideoFile(file);
     setIsValidating(false);
     if (!result.ok) {
       setValidationError(result.error ?? "This file couldn't be validated.");
@@ -48,14 +39,39 @@ export function ImageConverter({ conversion }: { conversion: ConversionDefinitio
     setSelectedFile(file);
   }
 
-  function handleConvert() {
-    if (selectedFile) convert(selectedFile, isLossyOutput ? quality : undefined);
-  }
-
   function handleReset() {
-    cancel();
+    setStatus("idle");
+    setError(null);
+    setProgress(0);
     setSelectedFile(null);
     setValidationError(null);
+    setResultUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
+  }
+
+  async function handleConvert() {
+    if (!selectedFile) return;
+    setError(null);
+    setProgress(0);
+
+    try {
+      setStatus("loading-engine");
+      await loadFFmpegEngine((ratio) => setProgress(ratio));
+
+      setStatus("converting");
+      setProgress(0);
+      const blob = await extractAudioFromVideo(selectedFile, outputFormat, {
+        onProgress: (ratio) => setProgress(ratio),
+      });
+
+      setResultUrl(URL.createObjectURL(blob));
+      setStatus("done");
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Conversion failed unexpectedly.");
+      setStatus("error");
+    }
   }
 
   const downloadName = selectedFile
@@ -68,7 +84,7 @@ export function ImageConverter({ conversion }: { conversion: ConversionDefinitio
         <FileDropzone
           accept={accept}
           label={`Drop your ${source.name} file here`}
-          hint={`Accepted: ${source.extensions.join(", ")} · Max 40MB`}
+          hint={`Accepted: ${source.extensions.join(", ")} · Max 200MB`}
           onFile={handleFile}
           disabled={isValidating}
         />
@@ -103,39 +119,29 @@ export function ImageConverter({ conversion }: { conversion: ConversionDefinitio
             </button>
           </div>
 
-          {isLossyOutput && (
-            <div>
-              <label htmlFor="quality" className="flex items-center justify-between text-sm font-medium text-zinc-700">
-                <span>Output quality</span>
-                <span>{Math.round(quality * 100)}%</span>
-              </label>
-              <input
-                id="quality"
-                type="range"
-                min={0.5}
-                max={1}
-                step={0.01}
-                value={quality}
-                onChange={(e) => setQuality(Number(e.target.value))}
-                className="mt-2 w-full accent-indigo-600"
-              />
-            </div>
-          )}
-
           <Button variant="primary" onClick={handleConvert} className="w-full sm:w-auto">
             Convert to {target.name}
           </Button>
         </div>
       )}
 
+      {status === "loading-engine" && (
+        <div role="status" className="flex flex-col items-center gap-3 py-6 text-center">
+          <FiLoader aria-hidden size={28} className="animate-spin text-indigo-600" />
+          <p className="font-medium text-zinc-800">Loading the audio engine…</p>
+          <p className="text-sm text-zinc-500">
+            This downloads once (about 30MB) and is cached by your browser for next time.
+          </p>
+          <ProgressBar ratio={progress} />
+        </div>
+      )}
+
       {status === "converting" && (
         <div role="status" className="flex flex-col items-center gap-3 py-6 text-center">
           <FiLoader aria-hidden size={28} className="animate-spin text-indigo-600" />
-          <p className="font-medium text-zinc-800">Converting your file…</p>
-          <p className="text-sm text-zinc-500">This runs locally in your browser and usually takes a second.</p>
-          <button type="button" onClick={handleReset} className="text-sm font-medium text-zinc-500 hover:text-zinc-800">
-            Cancel
-          </button>
+          <p className="font-medium text-zinc-800">Extracting audio…</p>
+          <p className="text-sm text-zinc-500">Larger videos take longer — this all runs on your device.</p>
+          <ProgressBar ratio={progress} />
         </div>
       )}
 
@@ -156,11 +162,6 @@ export function ImageConverter({ conversion }: { conversion: ConversionDefinitio
           <div className="flex flex-col items-center gap-2 py-2">
             <FiCheckCircle aria-hidden size={32} className="text-emerald-600" />
             <p className="font-medium text-zinc-800">Your {target.name} file is ready</p>
-            {dimensions && (
-              <p className="text-sm text-zinc-500">
-                {dimensions.width} × {dimensions.height}px
-              </p>
-            )}
           </div>
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Button variant="primary" as="a" href={resultUrl} download={downloadName}>
@@ -172,6 +173,21 @@ export function ImageConverter({ conversion }: { conversion: ConversionDefinitio
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ProgressBar({ ratio }: { ratio: number }) {
+  const percent = Math.round(Math.min(1, Math.max(0, ratio)) * 100);
+  return (
+    <div className="w-full max-w-xs">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-100">
+        <div
+          className="h-full rounded-full bg-indigo-600 transition-[width]"
+          style={{ width: `${percent}%` }}
+        />
+      </div>
+      <p className="mt-1.5 text-xs text-zinc-500">{percent}%</p>
     </div>
   );
 }

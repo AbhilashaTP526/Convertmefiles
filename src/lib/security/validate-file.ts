@@ -65,6 +65,59 @@ export async function validateImageFile(
   return { ok: true, detectedFormat: detected };
 }
 
+export const MAX_PDF_FILE_SIZE = 40 * 1024 * 1024; // 40MB
+export const MAX_VIDEO_FILE_SIZE = 200 * 1024 * 1024; // 200MB
+
+/** Sniffs for the `%PDF-` magic bytes at the start of the file. */
+export async function sniffPdf(file: File | Blob): Promise<boolean> {
+  const buffer = await file.slice(0, 5).arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const header = String.fromCharCode(...bytes);
+  return header === "%PDF-";
+}
+
+export async function validatePdfFile(file: File): Promise<ValidationResult> {
+  if (file.size === 0) return { ok: false, error: "This file is empty." };
+  if (file.size > MAX_PDF_FILE_SIZE) {
+    return {
+      ok: false,
+      error: `This file is too large for your browser to process reliably (max ${Math.floor(
+        MAX_PDF_FILE_SIZE / 1024 / 1024
+      )}MB).`,
+    };
+  }
+  const isPdf = await sniffPdf(file);
+  if (!isPdf) {
+    return { ok: false, error: "This doesn't look like a valid PDF file." };
+  }
+  return { ok: true };
+}
+
+/** Sniffs for an `ftyp` box, which virtually all MP4/MOV-family files carry starting at byte 4. */
+export async function sniffMp4(file: File | Blob): Promise<boolean> {
+  const buffer = await file.slice(4, 12).arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  const marker = String.fromCharCode(...bytes.slice(0, 4));
+  return marker === "ftyp";
+}
+
+export async function validateVideoFile(file: File): Promise<ValidationResult> {
+  if (file.size === 0) return { ok: false, error: "This file is empty." };
+  if (file.size > MAX_VIDEO_FILE_SIZE) {
+    return {
+      ok: false,
+      error: `This file is too large for your browser to process reliably (max ${Math.floor(
+        MAX_VIDEO_FILE_SIZE / 1024 / 1024
+      )}MB).`,
+    };
+  }
+  const isMp4 = await sniffMp4(file);
+  if (!isMp4) {
+    return { ok: false, error: "This doesn't look like a valid MP4 file." };
+  }
+  return { ok: true };
+}
+
 /** Strips path separators and unsafe characters so a filename is safe to use for a download. */
 export function sanitizeFileBaseName(name: string): string {
   const withoutPath = name.split(/[\\/]/).pop() ?? name;

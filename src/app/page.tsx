@@ -17,8 +17,8 @@ export const metadata: Metadata = {
 
 const categories = [
   { icon: FiImage, name: "Image", description: "JPG, PNG, WebP, GIF, BMP", href: "/tools/image", live: true },
-  { icon: FiFileText, name: "PDF", description: "Merge, split, convert", href: "#", live: false },
-  { icon: FiMusic, name: "Audio", description: "MP3, WAV conversion", href: "#", live: false },
+  { icon: FiFileText, name: "PDF", description: "Image to PDF, merge PDFs", href: "/tools/pdf", live: true },
+  { icon: FiMusic, name: "Audio", description: "Extract MP3 from video", href: "/tools/audio", live: true },
   { icon: FiVideo, name: "Video", description: "MP4, WebM conversion", href: "#", live: false },
 ];
 
@@ -36,7 +36,7 @@ const homeFaqs = [
   {
     question: "Are my files really not uploaded anywhere?",
     answer:
-      "For every converter currently on the site, conversion happens entirely inside your browser using the Canvas API — your files are never sent to our servers.",
+      "For every converter currently on the site, conversion happens entirely inside your browser — using the Canvas API for images, pdf-lib for PDFs, and a WebAssembly build of FFmpeg for audio — your files are never sent to our servers.",
   },
   {
     question: "Is there a file size limit?",
@@ -93,6 +93,13 @@ export default function HomePage() {
                 </Link>
               );
             })}
+            <Link
+              href="/merge-pdf"
+              className="rounded-xl border border-zinc-200 p-5 transition-colors hover:border-indigo-300 hover:shadow-sm"
+            >
+              <p className="font-semibold text-zinc-900">Merge PDF Files</p>
+              <p className="mt-1 text-sm text-zinc-500">Free, private, and instant</p>
+            </Link>
           </div>
         </Container>
       </section>
