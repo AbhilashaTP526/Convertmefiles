@@ -3,7 +3,7 @@ export type FormatCategory = "image" | "document" | "audio" | "video";
 export type ImageFormatId = "jpg" | "png" | "webp" | "gif" | "bmp";
 export type DocumentFormatId = "pdf";
 export type AudioFormatId = "mp3";
-export type VideoFormatId = "mp4";
+export type VideoFormatId = "mp4" | "webm";
 export type FormatId = ImageFormatId | DocumentFormatId | AudioFormatId | VideoFormatId;
 
 export interface FormatDefinition {
@@ -143,7 +143,7 @@ export const formats: Record<FormatId, FormatDefinition> = {
     compression: "lossless",
     supportsTransparency: true,
     supportsAnimation: true,
-    relatedFormats: ["png", "webp", "jpg"],
+    relatedFormats: ["png", "webp", "jpg", "mp4"],
   },
   bmp: {
     id: "bmp",
@@ -263,7 +263,37 @@ export const formats: Record<FormatId, FormatDefinition> = {
     compression: "lossy",
     supportsTransparency: false,
     supportsAnimation: false,
-    relatedFormats: ["mp3"],
+    relatedFormats: ["mp3", "webm", "gif"],
+  },
+  webm: {
+    id: "webm",
+    name: "WebM",
+    fullName: "WebM",
+    category: "video",
+    extensions: [".webm"],
+    mimeTypes: ["video/webm"],
+    description:
+      "WebM is an open, royalty-free video container developed for the web, typically pairing VP8/VP9 video with Vorbis or Opus audio. It's built into every modern browser and favored for its smaller file sizes.",
+    pros: [
+      "Open and royalty-free, with no licensing costs",
+      "Smaller file sizes than MP4 at comparable quality for web delivery",
+      "Plays natively in every modern browser without plugins",
+    ],
+    cons: [
+      "Less universal support than MP4 outside of browsers — some phones, editors, and older devices don't recognize it",
+      "Not the default recording format for phone or camera video",
+    ],
+    commonUses: [
+      "Embedded video on websites",
+      "Smaller video files for faster page loads",
+      "Open-source and privacy-focused projects that avoid licensed codecs",
+    ],
+    howToOpen:
+      "Plays natively in every modern browser (Chrome, Firefox, Edge, and current Safari). Older software or some non-browser media players may need VLC or a similar player with WebM support.",
+    compression: "lossy",
+    supportsTransparency: false,
+    supportsAnimation: false,
+    relatedFormats: ["mp4"],
   },
 };
 

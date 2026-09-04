@@ -3,10 +3,10 @@
 import { useState } from "react";
 import { FiAlertCircle, FiCheckCircle, FiDownload, FiLoader, FiRotateCcw } from "react-icons/fi";
 import type { ConversionDefinition } from "@/config/conversions";
-import { formats } from "@/config/formats";
+import { formats, type VideoFormatId } from "@/config/formats";
 import { validateVideoFile, sanitizeFileBaseName } from "@/lib/security/validate-file";
 import { loadFFmpegEngine } from "@/lib/conversion/ffmpeg-engine";
-import { extractAudioFromVideo, type AudioOutputFormat } from "@/lib/conversion/audio";
+import { convertVideo, type VideoOutputFormat } from "@/lib/conversion/video";
 import { formatBytes } from "@/lib/utils/format-bytes";
 import { trackEvent } from "@/lib/analytics/track";
 import { FileDropzone } from "@/components/converter/file-dropzone";
@@ -14,10 +14,11 @@ import { Button } from "@/components/ui/button";
 
 type Status = "idle" | "loading-engine" | "converting" | "done" | "error";
 
-export function AudioConverter({ conversion }: { conversion: ConversionDefinition }) {
+export function VideoConverter({ conversion }: { conversion: ConversionDefinition }) {
   const source = formats[conversion.source];
   const target = formats[conversion.target];
-  const outputFormat = conversion.target as AudioOutputFormat;
+  const sourceFormat = conversion.source as VideoFormatId;
+  const outputFormat = conversion.target as VideoOutputFormat;
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [validationError, setValidationError] = useState<string | null>(null);
@@ -32,7 +33,7 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
   async function handleFile(file: File) {
     setValidationError(null);
     setIsValidating(true);
-    const result = await validateVideoFile(file, "mp4");
+    const result = await validateVideoFile(file, sourceFormat);
     setIsValidating(false);
     if (!result.ok) {
       setValidationError(result.error ?? "This file couldn't be validated.");
@@ -65,7 +66,7 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
 
       setStatus("converting");
       setProgress(0);
-      const blob = await extractAudioFromVideo(selectedFile, outputFormat, {
+      const blob = await convertVideo(selectedFile, outputFormat, {
         onProgress: (ratio) => setProgress(ratio),
       });
 
@@ -89,7 +90,7 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
         <FileDropzone
           accept={accept}
           label={`Drop your ${source.name} file here`}
-          hint={`Accepted: ${source.extensions.join(", ")} · Max 200MB`}
+          hint={`Accepted: ${source.extensions.join(", ")} · Max 100MB`}
           onFile={handleFile}
           disabled={isValidating}
         />
@@ -133,7 +134,7 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
       {status === "loading-engine" && (
         <div role="status" className="flex flex-col items-center gap-3 py-6 text-center">
           <FiLoader aria-hidden size={28} className="animate-spin text-indigo-600" />
-          <p className="font-medium text-zinc-800">Loading the audio engine…</p>
+          <p className="font-medium text-zinc-800">Loading the video engine…</p>
           <p className="text-sm text-zinc-500">
             This downloads once (about 30MB) and is cached by your browser for next time.
           </p>
@@ -144,8 +145,10 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
       {status === "converting" && (
         <div role="status" className="flex flex-col items-center gap-3 py-6 text-center">
           <FiLoader aria-hidden size={28} className="animate-spin text-indigo-600" />
-          <p className="font-medium text-zinc-800">Extracting audio…</p>
-          <p className="text-sm text-zinc-500">Larger videos take longer — this all runs on your device.</p>
+          <p className="font-medium text-zinc-800">Converting your video…</p>
+          <p className="text-sm text-zinc-500">
+            Video encoding is CPU-intensive — larger or longer clips take a while. Keep this tab open.
+          </p>
           <ProgressBar ratio={progress} />
         </div>
       )}
@@ -168,6 +171,14 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
             <FiCheckCircle aria-hidden size={32} className="text-emerald-600" />
             <p className="font-medium text-zinc-800">Your {target.name} file is ready</p>
           </div>
+
+          {conversion.target === "gif" ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={resultUrl} alt="Converted GIF preview" className="mx-auto max-h-72 rounded-lg border border-zinc-200" />
+          ) : (
+            <video src={resultUrl} controls className="mx-auto max-h-72 w-full rounded-lg border border-zinc-200 bg-black" />
+          )}
+
           <div className="flex flex-col justify-center gap-3 sm:flex-row">
             <Button variant="primary" as="a" href={resultUrl} download={downloadName}>
               <FiDownload aria-hidden /> Download {target.name}

@@ -19,7 +19,7 @@ const categories = [
   { icon: FiImage, name: "Image", description: "JPG, PNG, WebP, GIF, BMP", href: "/tools/image", live: true },
   { icon: FiFileText, name: "PDF", description: "Image to PDF, merge PDFs", href: "/tools/pdf", live: true },
   { icon: FiMusic, name: "Audio", description: "Extract MP3 from video", href: "/tools/audio", live: true },
-  { icon: FiVideo, name: "Video", description: "MP4, WebM conversion", href: "#", live: false },
+  { icon: FiVideo, name: "Video", description: "MP4, WebM conversion", href: "/tools/video", live: true },
 ];
 
 const privacyPoints = [

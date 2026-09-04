@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${siteConfig.url}/tools/image`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteConfig.url}/tools/pdf`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteConfig.url}/tools/audio`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${siteConfig.url}/tools/video`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
     { url: `${siteConfig.url}/merge-pdf`, lastModified: now, changeFrequency: "monthly", priority: 0.9 },
     { url: `${siteConfig.url}/formats`, lastModified: now, changeFrequency: "monthly", priority: 0.6 },
     { url: `${siteConfig.url}/about`, lastModified: now, changeFrequency: "yearly", priority: 0.3 },

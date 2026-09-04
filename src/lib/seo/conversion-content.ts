@@ -40,8 +40,14 @@ export function getWhatIsParagraph(conversion: ConversionDefinition): string {
   if (conversion.engine === "pdf" && conversion.target === "pdf") {
     return `${source.name} to PDF conversion embeds one or more ${source.name} images into a single PDF document, one image per page, at their original resolution. ${target.description} It's a quick way to combine photos, scans, or screenshots into one shareable file.`;
   }
-  if (conversion.engine === "audio" || conversion.engine === "video") {
+  if (conversion.engine === "audio") {
     return `${source.name} to ${target.name} conversion extracts the audio track from an ${source.name} video and re-encodes it as a standalone ${target.name} file. ${source.description} ${target.description}`;
+  }
+  if (conversion.engine === "video" && conversion.target === "gif") {
+    return `${source.name} to GIF conversion re-encodes each frame of your ${source.name} video into an animated GIF, dropping the audio track entirely since GIF can't store sound. ${source.description}`;
+  }
+  if (conversion.engine === "video") {
+    return `${source.name} to ${target.name} conversion re-encodes your video's picture and sound into ${target.fullName}, changing the container and codecs while keeping the same content. ${source.description} ${target.description}`;
   }
 
   return `${source.name} to ${target.name} conversion changes a ${source.fullName} image into ${target.fullName}. ${source.description} ${target.description} Converting between the two lets you pick whichever format best fits where the image is headed next.`;
@@ -54,8 +60,14 @@ export function getWhyConvertParagraph(conversion: ConversionDefinition): string
   if (conversion.engine === "pdf" && conversion.target === "pdf") {
     return `Converting to PDF is the easiest way to turn a handful of images into one document that opens identically on any device, prints cleanly, and can be shared as a single attachment instead of several separate image files.`;
   }
-  if (conversion.engine === "audio" || conversion.engine === "video") {
+  if (conversion.engine === "audio") {
     return `Extracting the audio from a video is useful when you only need the sound — a lecture, a podcast recording, a music clip, or a voice memo — without carrying around the much larger video file.`;
+  }
+  if (conversion.engine === "video" && conversion.target === "gif") {
+    return `Converting a short clip to GIF makes it easy to share as a self-playing loop anywhere GIFs are supported — chat apps, forums, and articles — without anyone needing to tap play.`;
+  }
+  if (conversion.engine === "video") {
+    return `Converting between video formats is useful when a platform, editor, or device only accepts ${target.name}, or when you want ${target.name}'s balance of compatibility and file size instead of ${source.name}'s.`;
   }
   if (conversion.target === "webp") {
     return `Converting ${source.name} to WebP typically produces a noticeably smaller file at similar visual quality, which helps pages load faster and improves Core Web Vitals scores — while still supporting transparency${source.supportsAnimation ? " and animation" : ""}.`;
@@ -77,13 +89,20 @@ export interface ComparisonRow {
 
 /** Returns an empty array for conversions where a side-by-side format table wouldn't be meaningful (e.g. images -> PDF, video -> audio). */
 export function getComparisonRows(conversion: ConversionDefinition): ComparisonRow[] {
-  if (conversion.engine !== "image") return [];
+  if (conversion.engine !== "image" && conversion.engine !== "video") return [];
 
   const source = formats[conversion.source];
   const target = formats[conversion.target];
 
   const compressionLabel = (c: typeof source.compression) =>
     c === "lossy" ? "Lossy" : c === "lossless" ? "Lossless" : c === "none" ? "Uncompressed" : "Lossy or lossless";
+
+  if (conversion.engine === "video") {
+    return [
+      { label: "Compression", source: compressionLabel(source.compression), target: compressionLabel(target.compression) },
+      { label: "Typical use", source: source.commonUses[0], target: target.commonUses[0] },
+    ];
+  }
 
   return [
     { label: "Compression", source: compressionLabel(source.compression), target: compressionLabel(target.compression) },
@@ -97,8 +116,15 @@ export function getLimitationNote(conversion: ConversionDefinition): string | nu
   if (conversion.engine === "pdf" && conversion.target === "pdf") {
     return "Each image becomes its own page, scaled to fit the page while keeping its aspect ratio. Select multiple files to create a multi-page PDF.";
   }
-  if (conversion.engine === "audio" || conversion.engine === "video") {
+  if (conversion.engine === "audio") {
     return "The audio engine downloads once (about 30MB) the first time you convert, then stays cached in your browser for future conversions.";
+  }
+  if (conversion.engine === "video") {
+    const base =
+      "The video engine downloads once (about 30MB) the first time you convert, then stays cached in your browser for future conversions. Video encoding is CPU-intensive, so longer or higher-resolution clips take noticeably longer than audio extraction.";
+    return conversion.target === "gif"
+      ? `${base} GIF output has no audio track and is limited to a 256-color palette per frame.`
+      : base;
   }
   if (conversion.source === "gif") {
     return "If your GIF is animated, only the first frame will be used — this converter produces a single static image, not an animated output.";

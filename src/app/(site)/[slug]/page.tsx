@@ -20,6 +20,7 @@ import { JsonLd } from "@/components/seo/json-ld";
 import { ImageConverter } from "@/components/converter/image-converter";
 import { PdfFromImagesConverter } from "@/components/converter/pdf-from-images-converter";
 import { AudioConverter } from "@/components/converter/audio-converter";
+import { VideoConverter } from "@/components/converter/video-converter";
 import { articleFor } from "@/lib/utils/grammar";
 import { AdPlacement } from "@/components/ads/ad-placement";
 import { FiCheckCircle, FiInfo } from "react-icons/fi";
@@ -101,8 +102,10 @@ export default async function ConversionPage({
       <Container className="max-w-3xl py-6">
         {conversion.engine === "pdf" ? (
           <PdfFromImagesConverter conversion={conversion} />
-        ) : conversion.engine === "audio" || conversion.engine === "video" ? (
+        ) : conversion.engine === "audio" ? (
           <AudioConverter conversion={conversion} />
+        ) : conversion.engine === "video" ? (
+          <VideoConverter conversion={conversion} />
         ) : (
           <ImageConverter conversion={conversion} />
         )}

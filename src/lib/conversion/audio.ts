@@ -1,34 +1,7 @@
-import { FFmpeg } from "@ffmpeg/ffmpeg";
-import { fetchFile, toBlobURL } from "@ffmpeg/util";
+import { fetchFile } from "@ffmpeg/util";
+import { loadFFmpegEngine } from "./ffmpeg-engine";
 
 export type AudioOutputFormat = "mp3" | "wav";
-
-let ffmpegInstance: FFmpeg | null = null;
-let loadPromise: Promise<FFmpeg> | null = null;
-
-/**
- * Lazily loads ffmpeg.wasm (self-hosted under /public/ffmpeg) the first time
- * it's needed, and reuses the same instance afterwards. Nothing here runs
- * until an audio/video conversion is actually requested. The WASM core is
- * ~30MB, so callers should surface `onLoadProgress` to the user.
- */
-export async function loadFFmpegEngine(onLoadProgress?: (ratio: number) => void): Promise<FFmpeg> {
-  if (ffmpegInstance?.loaded) return ffmpegInstance;
-  if (!loadPromise) {
-    loadPromise = (async () => {
-      const ffmpeg = new FFmpeg();
-      const baseURL = "/ffmpeg";
-      const coreURL = await toBlobURL(`${baseURL}/ffmpeg-core.js`, "text/javascript");
-      const wasmURL = await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, "application/wasm", true, (event) => {
-        if (event.total > 0) onLoadProgress?.(event.received / event.total);
-      });
-      await ffmpeg.load({ coreURL, wasmURL });
-      ffmpegInstance = ffmpeg;
-      return ffmpeg;
-    })();
-  }
-  return loadPromise;
-}
 
 export interface ExtractAudioOptions {
   onProgress?: (ratio: number) => void;

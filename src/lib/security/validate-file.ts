@@ -1,4 +1,4 @@
-import { type ImageFormatId, formats } from "@/config/formats";
+import { type ImageFormatId, type VideoFormatId, type FormatId, formats } from "@/config/formats";
 
 /**
  * Magic-byte signatures for supported raster formats. We never trust the
@@ -28,7 +28,7 @@ export const MAX_IMAGE_FILE_SIZE = 40 * 1024 * 1024; // 40MB
 
 export interface ValidationResult {
   ok: boolean;
-  detectedFormat?: ImageFormatId;
+  detectedFormat?: FormatId;
   error?: string;
 }
 
@@ -101,7 +101,20 @@ export async function sniffMp4(file: File | Blob): Promise<boolean> {
   return marker === "ftyp";
 }
 
-export async function validateVideoFile(file: File): Promise<ValidationResult> {
+/** Sniffs for the EBML header (0x1A45DFA3) that every WebM/Matroska file starts with. */
+export async function sniffWebm(file: File | Blob): Promise<boolean> {
+  const buffer = await file.slice(0, 4).arrayBuffer();
+  const bytes = new Uint8Array(buffer);
+  return bytes[0] === 0x1a && bytes[1] === 0x45 && bytes[2] === 0xdf && bytes[3] === 0xa3;
+}
+
+export async function sniffVideoFormat(file: File | Blob): Promise<VideoFormatId | null> {
+  if (await sniffMp4(file)) return "mp4";
+  if (await sniffWebm(file)) return "webm";
+  return null;
+}
+
+export async function validateVideoFile(file: File, expectedSource: VideoFormatId): Promise<ValidationResult> {
   if (file.size === 0) return { ok: false, error: "This file is empty." };
   if (file.size > MAX_VIDEO_FILE_SIZE) {
     return {
@@ -111,11 +124,20 @@ export async function validateVideoFile(file: File): Promise<ValidationResult> {
       )}MB).`,
     };
   }
-  const isMp4 = await sniffMp4(file);
-  if (!isMp4) {
-    return { ok: false, error: "This doesn't look like a valid MP4 file." };
+  const detected = await sniffVideoFormat(file);
+  if (!detected) {
+    return { ok: false, error: `Unsupported file format. Please choose a valid ${formats[expectedSource].name} file.` };
   }
-  return { ok: true };
+  if (detected !== expectedSource) {
+    const expectedName = formats[expectedSource].name;
+    const detectedName = formats[detected].name;
+    return {
+      ok: false,
+      detectedFormat: detected,
+      error: `This looks like a ${detectedName} file, not a ${expectedName} file. Please choose a ${expectedName} file, or use the ${detectedName} converter instead.`,
+    };
+  }
+  return { ok: true, detectedFormat: detected };
 }
 
 /** Strips path separators and unsafe characters so a filename is safe to use for a download. */

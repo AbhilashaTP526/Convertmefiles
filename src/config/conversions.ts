@@ -62,7 +62,7 @@ function buildFaqs(source: string, target: string, engine: ConversionEngine): Fa
     {
       question: `What is the maximum file size I can convert?`,
       answer: `Because conversion happens on your own device, the limit depends on your browser and device memory. We recommend keeping individual files under ${
-        engine === "audio" || engine === "video" ? "200MB" : "40MB"
+        engine === "video" ? "100MB, and a few minutes long," : engine === "audio" ? "200MB" : "40MB"
       } for the smoothest experience.`,
     },
   ];
@@ -74,6 +74,12 @@ function qualityAnswer(source: string, target: string, engine: ConversionEngine)
   }
   if (engine === "audio") {
     return `Extracting audio from video re-encodes the audio track. MP3 uses a high-quality variable bitrate setting by default, which sounds close to indistinguishable from the source for most listening.`;
+  }
+  if (engine === "video" && target === "gif") {
+    return `Converting video to GIF re-encodes every frame into GIF's 256-color palette and drops the audio track entirely, since GIF can't store sound. It's best suited to short clips rather than a full-quality copy of the source.`;
+  }
+  if (engine === "video") {
+    return `Re-encoding between video formats involves recompressing both picture and sound, so there's a small quality trade-off — but the default settings here stay close to the source while keeping in-browser conversion practical.`;
   }
   if (target === "jpg" && (source === "png" || source === "gif" || source === "bmp")) {
     return `Converting to JPG uses lossy compression, so there is a small quality trade-off in exchange for a much smaller file size. Any transparent areas in the original image are filled with a white background, since JPG doesn't support transparency.`;
@@ -104,6 +110,9 @@ const pairs: PairSpec[] = [
   { source: "jpg", target: "pdf", engine: "pdf" },
   { source: "png", target: "pdf", engine: "pdf" },
   { source: "mp4", target: "mp3", engine: "audio" },
+  { source: "mp4", target: "webm", engine: "video" },
+  { source: "webm", target: "mp4", engine: "video" },
+  { source: "mp4", target: "gif", engine: "video" },
 ];
 
 export const conversions: ConversionDefinition[] = pairs.map(({ source, target, engine }) => ({

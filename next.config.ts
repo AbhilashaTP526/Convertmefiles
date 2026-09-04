@@ -14,6 +14,7 @@ const securityHeaders = [
       "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' blob: https://*.googlesyndication.com https://*.googletagservices.com https://*.google.com https://*.doubleclick.net",
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://*.googlesyndication.com https://*.doubleclick.net https://*.gstatic.com",
+      "media-src 'self' blob:",
       "font-src 'self' data:",
       "connect-src 'self' blob: https://*.googlesyndication.com https://*.google.com",
       "frame-src 'self' https://*.googlesyndication.com https://*.doubleclick.net https://*.google.com",

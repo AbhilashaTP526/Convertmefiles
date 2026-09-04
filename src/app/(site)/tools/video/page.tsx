@@ -6,25 +6,25 @@ import { Container } from "@/components/ui/container";
 import { Breadcrumbs } from "@/components/seo/breadcrumbs";
 
 export const metadata: Metadata = {
-  title: "Audio Tools",
-  description: "Extract and convert audio from video files for free, right in your browser — no upload required.",
-  alternates: { canonical: "/tools/audio" },
+  title: "Video Tools",
+  description: "Convert between video formats and create GIFs for free, right in your browser — no upload required.",
+  alternates: { canonical: "/tools/video" },
 };
 
-const audioConversions = conversions.filter((c) => c.engine === "audio");
+const videoConversions = conversions.filter((c) => c.engine === "video");
 
-export default function AudioToolsPage() {
+export default function VideoToolsPage() {
   return (
     <Container className="py-12">
-      <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Tools", path: "/tools" }, { name: "Audio", path: "/tools/audio" }]} />
-      <h1 className="mt-4 text-3xl font-bold tracking-tight text-zinc-900">Audio Tools</h1>
+      <Breadcrumbs items={[{ name: "Home", path: "/" }, { name: "Tools", path: "/tools" }, { name: "Video", path: "/tools/video" }]} />
+      <h1 className="mt-4 text-3xl font-bold tracking-tight text-zinc-900">Video Tools</h1>
       <p className="mt-3 max-w-2xl text-lg text-zinc-600">
-        Extract audio from video files locally in your browser, powered by a WebAssembly build of FFmpeg — no upload
-        required.
+        Convert between video formats and turn clips into GIFs locally in your browser, powered by a WebAssembly
+        build of FFmpeg — no upload required.
       </p>
 
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {audioConversions.map((c) => {
+        {videoConversions.map((c) => {
           const meta = getConversionMeta(c);
           return (
             <Link key={c.slug} href={`/${c.slug}`} className="rounded-xl border border-zinc-200 p-5 hover:border-indigo-300 hover:shadow-sm">
