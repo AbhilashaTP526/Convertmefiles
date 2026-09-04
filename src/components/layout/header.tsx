@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { FiShield } from "react-icons/fi";
 import { siteConfig } from "@/config/site";
 import { Container } from "@/components/ui/container";
 import { SearchBar } from "@/components/home/search-bar";
@@ -10,9 +9,9 @@ export function Header() {
     <header className="sticky top-0 z-40 border-b border-zinc-200 bg-white/90 backdrop-blur">
       <Container>
         <div className="relative flex h-16 items-center justify-between gap-4">
-          <Link href="/" className="flex items-center gap-2 font-bold text-zinc-900">
-            <FiShield aria-hidden className="text-indigo-600" size={22} />
-            <span>{siteConfig.shortName}</span>
+          <Link href="/" className="flex items-center">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/Letterlogo.svg" alt={siteConfig.shortName} className="h-8 w-auto" />
           </Link>
 
           <div className="hidden max-w-xs flex-1 sm:block">
