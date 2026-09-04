@@ -11,7 +11,7 @@ export function Header() {
         <div className="relative flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex shrink-0 items-center">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/Letterlogo.svg" alt={siteConfig.shortName} className="h-12 w-auto" />
+            <img src="/Letterlogo.svg" alt={siteConfig.shortName} className="h-[52px] w-auto" />
           </Link>
 
           <div className="hidden max-w-xs flex-1 sm:block">
