@@ -5,7 +5,7 @@ export const ADMIN_SESSION_COOKIE = "convertmefiles_admin_session";
 const SESSION_DURATION = "12h";
 
 function getSecretKey(): Uint8Array {
-  const secret = process.env.ADMIN_SESSION_SECRET;
+  const secret = process.env.ADMIN_SESSION_SECRET?.trim();
   if (!secret || secret.length < 16) {
     throw new Error(
       "ADMIN_SESSION_SECRET is missing or too short. Set it to a long random string (32+ characters) in your environment variables."
@@ -44,9 +44,13 @@ function timingSafeStringEqual(candidate: string, expected: string): boolean {
 }
 
 export function checkAdminPassword(candidate: string): boolean {
-  const expected = process.env.ADMIN_PASSWORD;
+  // .trim() guards against a stray trailing newline/CR sneaking into the env
+  // var value (e.g. via a shell pipeline when it was set) — trimming can't
+  // weaken a real password meaningfully, and it eliminates a whole class of
+  // "the password is right but login fails" bugs.
+  const expected = process.env.ADMIN_PASSWORD?.trim();
   if (!expected) return false;
-  return timingSafeStringEqual(candidate, expected);
+  return timingSafeStringEqual(candidate.trim(), expected);
 }
 
 export function checkAdminEmail(candidate: string): boolean {
