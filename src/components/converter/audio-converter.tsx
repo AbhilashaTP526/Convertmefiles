@@ -89,7 +89,7 @@ export function AudioConverter({ conversion }: { conversion: ConversionDefinitio
         <FileDropzone
           accept={accept}
           label={`Drop your ${source.name} file here`}
-          hint={`Accepted: ${source.extensions.join(", ")} · Max 200MB`}
+          hint={`Accepted: ${source.extensions.join(", ")} · Max 300MB`}
           onFile={handleFile}
           disabled={isValidating}
         />

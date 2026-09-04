@@ -90,7 +90,7 @@ export function VideoConverter({ conversion }: { conversion: ConversionDefinitio
         <FileDropzone
           accept={accept}
           label={`Drop your ${source.name} file here`}
-          hint={`Accepted: ${source.extensions.join(", ")} · Max 100MB`}
+          hint={`Accepted: ${source.extensions.join(", ")} · Max 300MB`}
           onFile={handleFile}
           disabled={isValidating}
         />

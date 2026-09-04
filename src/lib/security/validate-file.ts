@@ -66,7 +66,7 @@ export async function validateImageFile(
 }
 
 export const MAX_PDF_FILE_SIZE = 40 * 1024 * 1024; // 40MB
-export const MAX_VIDEO_FILE_SIZE = 200 * 1024 * 1024; // 200MB
+export const MAX_VIDEO_FILE_SIZE = 300 * 1024 * 1024; // 300MB
 
 /** Sniffs for the `%PDF-` magic bytes at the start of the file. */
 export async function sniffPdf(file: File | Blob): Promise<boolean> {

@@ -62,7 +62,7 @@ function buildFaqs(source: string, target: string, engine: ConversionEngine): Fa
     {
       question: `What is the maximum file size I can convert?`,
       answer: `Because conversion happens on your own device, the limit depends on your browser and device memory. We recommend keeping individual files under ${
-        engine === "video" ? "100MB, and a few minutes long," : engine === "audio" ? "200MB" : "40MB"
+        engine === "video" ? "300MB, and a few minutes long," : engine === "audio" ? "300MB" : "40MB"
       } for the smoothest experience.`,
     },
   ];
